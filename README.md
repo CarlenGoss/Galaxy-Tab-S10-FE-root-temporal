@@ -1,248 +1,245 @@
-# Galaxy Tab S10 FE — root temporal por arranque (SM-X520)
+# Galaxy Tab S10 FE — Per-boot temporary root (SM-X520)
 
-Root **temporal, por arranque y reversible** para la **Samsung Galaxy Tab S10 FE
-(Wi-Fi, SM-X520, Exynos 1580)** sobre la build **X520XXSBCZI2**, sin desbloquear
-el bootloader, sin flashear con Odin y sin modificar la imagen de arranque (Knox
-intacto). Usa el port de Root My Galaxy del exploit de kernel
-**CVE-2026-43499 ("GhostLock")** y a continuación carga **KernelSU** como módulo
-tardío con el `vermagic` exacto de esta build.
+[🇪🇸 Leer este README en español](README.es.md)
 
-Incluye una **app Android lanzadora** (`app-launcher/`) que ejecuta toda la
-cadena desde la propia tablet a través de [Shizuku], de modo que **después de
-cada reinicio no hace falta ningún ordenador**: abres la app, pulsas un botón y
-recuperas `uid 0` con SELinux en `Enforcing`.
+Per-boot, **temporary and reversible** root for the **Samsung Galaxy Tab S10 FE
+(Wi-Fi, SM-X520, Exynos 1580)** running build **X520XXSBCZI2**, without
+unlocking the bootloader, flashing with Odin, or modifying the boot image (Knox
+remains intact). It uses the Root My Galaxy port of the **CVE-2026-43499
+("GhostLock")** kernel exploit and then loads **KernelSU** as a late-loaded
+module with the exact `vermagic` for this build.
 
-> Solo para dispositivos propios o con autorización explícita. El root vive en
-> memoria hasta el siguiente reinicio; no se toca ninguna partición.
+This repository includes an **Android launcher app** (`app-launcher/`) that runs
+the complete chain on the tablet through [Shizuku]. After the initial setup, no
+computer is required after each reboot: open the app, press one button, and
+restore `uid 0` with SELinux in `Enforcing` mode.
+
+> Use only on devices that you own or are explicitly authorized to test. Root
+> exists in memory only until the next reboot; no partition is modified.
 
 ---
 
-## Estado verificado en hardware
+## Hardware validation
 
-Todo lo siguiente se probó en un SM-X520 real con la build X520XXSBCZI2
-(kernel `6.6.102-android15-8-abX520XXSBCZI2-4k`), en noviembre de 2026:
+The complete chain was tested on a real SM-X520 with build X520XXSBCZI2 in
+November 2026:
 
-| Comprobación | Resultado |
+| Check | Result |
 | --- | --- |
-| Root desde la app tras arranque limpio | `uid=0` |
-| KernelSU | `kernelsu … Live` · gestor «Funcionando ‹LKM› [Jailbreak mode]» |
-| SELinux al terminar | `Enforcing` |
-| Segundo intento sin reiniciar | Detecta KernelSU activo y termina en segundos |
-| Fallo del exploit (8 intentos) | Sin root, sin reinicio del kernel, SELinux vuelve a `Enforcing` |
-| Shizuku detenido | La app avisa, abre Shizuku y se recupera sola al volver |
-| Notificación de progreso | `channel=root_status`, `FOREGROUND_SERVICE`, `ONGOING` |
+| Root from the launcher after a clean boot | `uid=0` |
+| KernelSU | `kernelsu … Live`; manager shows `LKM` / `Jailbreak mode` |
+| SELinux after completion | `Enforcing` |
+| Second run without rebooting | Detects KernelSU and finishes within seconds |
+| Clean exploit failure | No root, no kernel reboot, SELinux returns to `Enforcing` |
+| Shizuku stopped | App reports it, opens Shizuku, and recovers when it returns |
+| Progress notification | `root_status`, foreground, ongoing |
 | Knox / bootloader | `warranty_bit=0`, `knox=0`, `flash_locked=1`, `verifiedboot=green`, `vbmeta=locked` |
 
-El detalle de las pruebas está en [docs/VALIDACION.md](docs/VALIDACION.md).
+See the detailed test record in [docs/VALIDACION.md](docs/VALIDACION.md).
 
-## Dispositivo compatible
+## Supported device
 
-| Requisito | Valor |
+| Requirement | Value |
 | --- | --- |
-| Modelo | `SM-X520` (Galaxy Tab S10 FE, Wi-Fi) |
+| Model | `SM-X520` (Galaxy Tab S10 FE, Wi-Fi) |
 | Firmware (AP/PDA) | `X520XXSBCZI2` (Android 16, One UI 8) |
 | Kernel | `6.6.102-android15-8-abX520XXSBCZI2-4k` |
 
-El payload está **fijado a esta build exacta**: los offsets de símbolos cambian
-entre firmwares. La app y `root.sh` se niegan a ejecutarse en otra build. Si has
-actualizado, recompila el payload siguiendo [PORTING.md](PORTING.md).
+The payload is **pinned to this exact build**: kernel symbol offsets differ
+between firmware versions. The app and `root.sh` refuse to run on another
+build. If you have updated the tablet, re-port the payload using
+[PORTING.md](PORTING.md).
 
 ---
 
-## Instalación y uso
+## Installation and usage
 
-### Vía A — App en la tablet (recomendada, sin ordenador)
+### Option A — Launcher app on the tablet (recommended)
 
-Requisitos: la tablet ya emparejada una vez con **Depuración inalámbrica**
-(para que Shizuku pueda arrancar su servidor como usuario `shell`).
+This option does not require a computer after the initial installation.
 
-1. **Instala la app** (APK compilado en `app-launcher/app/build/outputs/apk/debug/`):
+Requirements: Wireless debugging must be paired once so that Shizuku can start
+its server as the Android `shell` user.
 
-   ```sh
-   adb install -r app-debug.apk
-   ```
-
-   O compílala tú mismo:
+1. **Build and install the app:**
 
    ```sh
    cd app-launcher
-   export ANDROID_HOME=/ruta/al/android-sdk   # o crea local.properties con sdk.dir=...
+   export ANDROID_HOME=/path/to/android-sdk   # or create local.properties
    ./gradlew assembleDebug
    adb install -r app/build/outputs/apk/debug/app-debug.apk
    ```
 
-   Requisitos de compilación: JDK 17, Android SDK 35 y Gradle 8.9 (el wrapper
-   `./gradlew` lo descarga solo). Verificado con AGP 8.7.3.
+   Build requirements: JDK 17 and Android SDK 35. The Gradle wrapper downloads
+   Gradle 8.9 automatically. The project was verified with AGP 8.7.3.
 
-2. **Instala Shizuku** ([releases de Shizuku]) y arráncalo una vez con
-   *Depuración inalámbrica* → *Emparejar dispositivo*. En este dispositivo el
-   servidor de Shizuku se reinicia solo tras cada arranque.
+2. **Install Shizuku** from its [releases] and start it once using Wireless
+   debugging → Pair device. On the validated tablet, the Shizuku server starts
+   again after reboot when Wireless debugging remains paired.
 
-3. **Abre la app «Tab S10 FE Root»** y concede el permiso de Shizuku cuando lo
-   pida.
+3. Open **Tab S10 FE Root** and grant the Shizuku permission when requested.
 
-4. Pulsa **Iniciar root temporal**. La app:
-   - copia `x520.so`, `cve-2026-43499-root` y `ksud` a `/data/local/tmp`
-     (enviados por la entrada estándar del proceso de Shizuku, sin almacenamiento
-     compartido),
-   - ejecuta la cadena GhostLock con hasta 12 intentos,
-   - carga el módulo KernelSU,
-   - verifica `uid 0` + `kernelsu Live` + SELinux `Enforcing`.
+4. Press **Start temporary root**. The app:
+   - copies `x520.so`, `cve-2026-43499-root`, and `ksud` into
+     `/data/local/tmp` through Shizuku stdin, without shared storage;
+   - runs the GhostLock chain with up to 12 attempts;
+   - loads the KernelSU module;
+   - verifies `uid 0` + `kernelsu Live` + SELinux `Enforcing`.
 
-   La tarjeta de estado, los tres indicadores y el registro en vivo muestran el
-   progreso; una notificación en primer plano lo refleja fuera de la app. El log
-   completo del exploit queda en `/data/local/tmp/tab-s10-root.log`.
+   The status card, three indicators, and live log show progress. A foreground
+   notification mirrors the operation. The complete exploit log remains at
+   `/data/local/tmp/tab-s10-root.log`.
 
-5. Si el exploit falla (es probabilístico), la app te pide **reiniciar** y
-   reintentar. No se modifica nada permanente y SELinux vuelve a `Enforcing`.
+5. If the exploit misses, reboot the tablet and try again. The race is
+   probabilistic; no permanent change is made and SELinux returns to
+   `Enforcing`.
 
-6. Instala **KernelSU Manager** ([releases de KernelSU], probado con v3.2.5 /
-   versionCode 32525) para conceder superusuario a las apps que lo necesiten. Debe
-   mostrar «Funcionando ‹LKM› [Jailbreak mode]».
+6. Install the [KernelSU Manager releases] (tested with v3.2.5,
+   versionCode 32525) if you need to grant superuser access to other apps. It
+   should report `LKM` / `Jailbreak mode`.
 
-> **Cada reinicio vuelve a stock.** Repite los pasos 3–4 tras cada arranque; no
-> hay autoarranque, por diseño.
+> **Every reboot returns the tablet to stock.** Repeat the launcher steps after
+> each boot. Automatic exploit execution at boot is intentionally not enabled.
 
-### Vía B — ADB desde un ordenador
+### Option B — ADB from a computer
 
 ```sh
-./root.sh                 # con la tablet conectada y autorizada
-ATTEMPTS=16 ./root.sh     # más intentos si la carrera falla
+./root.sh                 # tablet connected and authorized
+ATTEMPTS=16 ./root.sh     # more race attempts if necessary
 ```
 
-Requisitos: depuración USB activada y autorizada, `adb` en el `PATH`.
+Requirements: USB debugging enabled and authorized, with `adb` in `PATH`.
 
-Qué hace `root.sh`:
+`root.sh`:
 
-1. copia el payload, el helper de root y el `ksud` parcheado a `/data/local/tmp`;
-2. ejecuta la cadena GhostLock desde el contexto `shell` (fuga de KASLR →
-   reclamación de pila PI-futex → fops falsos → lectura/escritura arbitraria de
-   kernel vía configfs → `uid 0`);
-3. prepara el cargador de KernelSU por la ruta segura para DEFEX y carga el módulo
-   (`kernelsu … Live`, SELinux sigue **Enforcing**);
-4. comprueba el módulo en `/proc/modules`.
+1. pushes the exploit payload, root helper, and patched `ksud` to
+   `/data/local/tmp`;
+2. runs the GhostLock chain from the `shell` context (KASLR leak → PI-futex
+   stack reclamation → fake fops → arbitrary kernel R/W through configfs →
+   `uid 0`);
+3. stages KernelSU through the DEFEX-safe path and loads the module
+   (`kernelsu … Live`, while SELinux remains `Enforcing`);
+4. verifies the module in `/proc/modules`.
 
 ---
 
-## Cómo funciona
+## How it works
 
-```
-app (Shizuku, uid 2000)  ó  adb shell
+```text
+app (Shizuku, uid 2000)  or  adb shell
         │
-        ├─ /data/local/tmp/x520.so                 (exploit GhostLock)
-        ├─ /data/local/tmp/cve-2026-43499-root     (helper: daemon + late-load)
-        └─ /data/local/tmp/ksud-zi2                (KernelSU con vermagic exacto)
+        ├─ /data/local/tmp/x520.so                 (GhostLock exploit)
+        ├─ /data/local/tmp/cve-2026-43499-root     (daemon + late-load helper)
+        └─ /data/local/tmp/ksud-zi2                (KernelSU, exact vermagic)
                 │
-                ├─ 1. KASLR leak (tracefs)
-                ├─ 2. reclamación de pila PI-futex (CVE-2026-43499)
-                ├─ 3. fops falsos → R/W arbitrario de kernel (configfs)
-                ├─ 4. usermode helper → daemon uid 0
+                ├─ 1. KASLR leak through tracefs
+                ├─ 2. PI-futex stack reclamation
+                ├─ 3. Fake fops → arbitrary kernel R/W through configfs
+                ├─ 4. Usermode helper → uid 0 daemon
                 └─ 5. ksud late-load --package-name me.weishu.kernelsu
-                        └─ módulo KernelSU Live · SELinux Enforcing
+                        └─ KernelSU Live · SELinux Enforcing
 ```
 
-Detalles que importan:
+Important implementation details:
 
-- **Socket abstracto**: el daemon escucha en el socket abstracto de Linux
-  `cve43499-superuser`, no en un fichero. Así no queda un socket huérfano en
-  `/data/local/tmp` que el dominio `shell` no pueda borrar (causa del error
-  `connect daemon: Permission denied` en versiones anteriores).
-- **Sin `--ephemeral`**: en SBCZI2 el `ksud` se invoca con
-  `late-load --package-name me.weishu.kernelsu`; el modo efímero no funciona en
-  esta build.
-- **`waitFor()` best-effort**: algunas versiones de Shizuku responden el estado
-  de salida antes de recolectar el hijo (`process hasn't exited`); el fin real se
-  detecta por el EOF del flujo.
-- Tras el `late-load` el daemon deja de ser accesible para `shell` (es lo
-  esperado: el root lo pasa a proporcionar KernelSU).
+- **Abstract socket:** the daemon listens on the Linux abstract socket
+  `cve43499-superuser`, not on a file. This avoids stale socket files in
+  `/data/local/tmp` that the `shell` domain cannot remove.
+- **No `--ephemeral`:** on SBCZI2, `ksud` is invoked with
+  `late-load --package-name me.weishu.kernelsu`; the ephemeral mode is not
+  accepted by this build.
+- **`waitFor()` is best-effort:** some Shizuku server versions return the exit
+  status before reaping the child and can throw `process hasn't exited`. The
+  app uses EOF from the process stream as the completion signal.
+- After `late-load`, the exploit daemon is no longer accessible to `shell`.
+  This is expected: KernelSU provides root from that point onward.
 
-## Estructura del repositorio
+## Repository layout
 
-```
-app-launcher/            App Android (Material 3) que ejecuta la cadena con Shizuku
+```text
+app-launcher/            Android Material 3 launcher using Shizuku
   app/src/main/assets/   x520.so, cve-2026-43499-root, ksud
-bin/                     Binarios de referencia con hashes publicados
-root.sh                  Cadena por ADB, un comando
-tools/                   Utilidades de portado (derive_offsets.py, etc.)
-PORTING.md               Procedimiento para re-derivar el payload en otra build
-docs/VALIDACION.md       Registro de pruebas en hardware
-NOTICE                   Créditos y cambios respecto al proyecto original
+bin/                     Reference binaries with published hashes
+root.sh                  One-command ADB chain
+tools/                   Porting utilities
+docs/VALIDACION.md       Hardware validation record (Spanish)
+PORTING.md               Procedure for re-deriving a payload
+NOTICE                  Credits and changes from the upstream project
 ```
 
-### Binarios y hashes
+## Binaries and hashes
 
-Construidos con NDK r29 y el DDK android15-6.6:
+Built with Android NDK r29 and the android15-6.6 DDK:
 
-| Fichero | SHA-256 |
+| File | SHA-256 |
 | --- | --- |
 | `bin/x520.so` | `31798c25a3c724aa0a7f39a92a3c10167fe1198edf73181bdf81f8ea7b94a12e` |
 | `bin/cve-2026-43499-root` | `39bfecffbf966eaa6558f5c8b6ea829eb326a7991720326b417a33a1ac4e7ba5` |
 | `bin/ksud` | `025782064f277eca007cf9a65ce8911c206cdd053729c4f33070cbf3227b0ed7` |
 
-## Solución de problemas
+## Troubleshooting
 
-- **El exploit falla sin más** (aborta limpio, sin reinicio): reinicia la tablet y
-  vuelve a intentarlo. La carrera es probabilística; en las pruebas acertó en los
-  intentos 1, 2, 4 y 5 de distintos arranques, y un arranque falló los 8
-  intentos. No apiles muchos intentos en un arranque ya fallido.
-- **`su: connect daemon: Permission denied` tras un root correcto**: normal. El
-  root ya lo sirve KernelSU; el daemon del exploit deja de ser accesible para
-  `shell`. Un `/data/local/tmp/temp_su.sock` antiguo es inofensivo.
-- **`device unauthorized`**: acepta el aviso RSA de depuración USB en la tablet
-  (o revoca autorizaciones y vuelve a conectar).
-- **«Shizuku no está activo»**: pulsa *Abrir Shizuku* y arráncalo con
-  *Depuración inalámbrica*. La app se recupera sola al volver.
-- **Actualizaciones OTA**: no aceptes una build con otro kernel hasta re-portar el
-  payload ([PORTING.md](PORTING.md)); los offsets cambian.
+- **The exploit fails cleanly:** reboot the tablet and try again. The race is
+  probabilistic; validation succeeded on attempts 1, 2, 4, and 5 on different
+  boots, while one boot failed all 8 attempts. Do not stack many attempts on a
+  boot that has already failed.
+- **`su: connect daemon: Permission denied` after a successful run:** this is
+  normal. KernelSU now provides root and the exploit daemon is no longer
+  available to `shell`. An old `/data/local/tmp/temp_su.sock` is harmless.
+- **`device unauthorized`:** accept the USB debugging RSA prompt on the tablet,
+  or revoke authorizations and reconnect.
+- **“Shizuku is not active”:** press **Open Shizuku** and start it with Wireless
+  debugging. The launcher recovers when Shizuku returns.
+- **OTA updates:** do not accept a build with a different kernel until the
+  payload has been re-ported. Kernel offsets will change; see
+  [PORTING.md](PORTING.md).
 
-## Portar a otra build o dispositivo
+## Porting to another build or device
 
-[PORTING.md](PORTING.md) documenta el proceso completo: identificación y descarga
-del firmware, extracción del kernel, recuperación de símbolos/BTF, derivación de
-offsets (`tools/derive_offsets.py`), generación de la huella P0, compilación del
-exploit, recompilación del módulo KernelSU con `vermagic` exacto, validación en
-hardware y los tropiezos aprendidos durante el bring-up.
+[PORTING.md](PORTING.md) documents the complete procedure: firmware
+identification and download, kernel extraction, symbol/BTF recovery, offset
+derivation (`tools/derive_offsets.py`), P0 fingerprint generation, exploit
+build, exact-vermagic KernelSU module rebuild, hardware validation, and the
+lessons learned during bring-up.
 
-## Cómo se construyó este repositorio
+## Build information
 
-| Elemento | Valor |
+| Element | Value |
 | --- | --- |
-| Asistencia de IA | **DeepSeek V4.1 Flash Free** en el agente OpenCode (noviembre de 2026) |
-| Compilación del payload | Android NDK r29 + DDK `android15-6.6` |
-| Compilación de la app | JDK 17 · Android SDK 35 · Gradle 8.9 · AGP 8.7.3 |
-| Dispositivo de validación | SM-X520 real, `X520XXSBCZI2`, Android 16 / One UI 8 |
-| Herramientas | adb, Shizuku 13.6.0.r1318, KernelSU Manager v3.2.5 (32525) |
+| AI assistance | **DeepSeek V4.1 Flash Free** through the OpenCode agent (November 2026) |
+| Payload build | Android NDK r29 + `android15-6.6` DDK |
+| App build | JDK 17 · Android SDK 35 · Gradle 8.9 · AGP 8.7.3 |
+| Validation device | Real SM-X520, `X520XXSBCZI2`, Android 16 / One UI 8 |
+| Tools | adb, Shizuku 13.6.0.r1318, KernelSU Manager v3.2.5 (32525) |
 
-Las pruebas se hicieron en hardware real, con arranques limpios, fallos
-provocados y comprobación del estado de seguridad antes y después de cada una.
+The validation used real hardware, clean boots, induced failures, and security
+state checks before and after the runs.
 
-## Créditos y procedencia
+## Credits and provenance
 
-- Base de este repositorio: [quillfinch/Galaxy-Tab-S10FE-Root] (Apache-2.0).
-- Cadena de exploit y sistema de compilación por objetivo:
-  [BuSung-dev/Root-My-Galaxy] y [BuSung-dev/Root-My-Galaxy-Payloads]
-  (Apache-2.0).
-- Investigación original de CVE-2026-43499: Nebula Security («IonStack» /
-  GhostLock).
-- [KernelSU] (GPL-3.0 en los componentes de kernel) con los parches de carga
-  tardía KDP/RKP/DEFEX de Samsung.
-- [Shizuku], que permite ejecutar la cadena como usuario `shell` desde la app.
+- Base repository: [quillfinch/Galaxy-Tab-S10FE-Root] (Apache-2.0).
+- Exploit chain and target build system: [BuSung-dev/Root-My-Galaxy] and
+  [BuSung-dev/Root-My-Galaxy-Payloads] (Apache-2.0).
+- Original CVE-2026-43499 research: Nebula Security (“IonStack” / GhostLock).
+- [KernelSU] (GPL-3.0 for kernel components), with Samsung KDP/RKP/DEFEX
+  late-load patches from the payloads project.
+- [Shizuku], used to run the chain as the `shell` user from the app.
 
-Los cambios respecto al proyecto original están listados en [NOTICE](NOTICE).
+Changes from the upstream project are listed in [NOTICE](NOTICE).
 
-## Licencia y aviso legal
+## License and legal notice
 
-Apache-2.0, heredada de Root-My-Galaxy / Root-My-Galaxy-Payloads (ver
-[LICENSE](LICENSE)). Los componentes de KernelSU siguen bajo GPL-3.0.
+Apache-2.0, inherited from Root-My-Galaxy / Root-My-Galaxy-Payloads (see
+[LICENSE](LICENSE)). KernelSU components remain under GPL-3.0.
 
-El uso de esta herramienta puede invalidar garantías o incumplir términos de
-servicio si se aplica a dispositivos que no son tuyos. Úsala solo en equipos
-propios o con autorización explícita, y bajo tu responsabilidad.
+This tool may void warranties or violate terms of service when used on devices
+that are not yours. Use it only on devices you own or are explicitly authorized
+to test, and at your own risk.
 
 [Shizuku]: https://shizuku.rikka.app/
-[releases de Shizuku]: https://github.com/RikkaApps/Shizuku/releases
+[releases]: https://github.com/RikkaApps/Shizuku/releases
 [KernelSU]: https://github.com/tiann/KernelSU
-[releases de KernelSU]: https://github.com/tiann/KernelSU/releases
+[KernelSU Manager releases]: https://github.com/tiann/KernelSU/releases
 [quillfinch/Galaxy-Tab-S10FE-Root]: https://github.com/quillfinch/Galaxy-Tab-S10FE-Root
 [BuSung-dev/Root-My-Galaxy]: https://github.com/BuSung-dev/Root-My-Galaxy
 [BuSung-dev/Root-My-Galaxy-Payloads]: https://github.com/BuSung-dev/Root-My-Galaxy-Payloads
