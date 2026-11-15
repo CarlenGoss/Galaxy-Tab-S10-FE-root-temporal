@@ -206,7 +206,7 @@ lessons learned during bring-up.
 
 | Element | Value |
 | --- | --- |
-| AI contributor | **Gemini 4 Argon**, through the OpenCode agent (November 2026) |
+| AI contributor | **GitHub Copilot**, through the OpenCode agent (November 2026) |
 | Payload build | Android NDK r29 + `android15-6.6` DDK |
 | App build | JDK 17 · Android SDK 35 · Gradle 8.9 · AGP 8.7.3 |
 | Validation device | Real SM-X520, `X520XXSBCZI2`, Android 16 / One UI 8 |
