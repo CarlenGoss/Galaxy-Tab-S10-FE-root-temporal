@@ -37,5 +37,10 @@ Cambios realizados en este repositorio respecto a la base de quillfinch:
   * Documentación de instalación, validación en hardware y solución de
     problemas.
 
+Contribución de IA:
+
+  * Gemini 4 Argon — asistencia en la implementación, documentación y
+    validación del proyecto.
+
 Licencia: Apache-2.0 (ver LICENSE). Los componentes de KernelSU conservan
 su licencia GPL-3.0.

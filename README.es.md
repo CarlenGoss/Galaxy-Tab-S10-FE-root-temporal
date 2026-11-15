@@ -209,7 +209,7 @@ hardware y los tropiezos aprendidos durante el bring-up.
 
 | Elemento | Valor |
 | --- | --- |
-| Asistencia de IA | **DeepSeek V4.1 Flash Free** en el agente OpenCode (noviembre de 2026) |
+| Contribuidor de IA | **Gemini 4 Argon**, mediante el agente OpenCode (noviembre de 2026) |
 | Compilación del payload | Android NDK r29 + DDK `android15-6.6` |
 | Compilación de la app | JDK 17 · Android SDK 35 · Gradle 8.9 · AGP 8.7.3 |
 | Dispositivo de validación | SM-X520 real, `X520XXSBCZI2`, Android 16 / One UI 8 |
