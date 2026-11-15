@@ -1,0 +1,41 @@
+Galaxy Tab S10 FE — root temporal por arranque (SM-X520 / X520XXSBCZI2)
+========================================================================
+
+Este repositorio es un trabajo derivado. Créditos a los autores originales:
+
+  * Galaxy-Tab-S10FE-Root (base de este repositorio)
+      quillfinch — https://github.com/quillfinch/Galaxy-Tab-S10FE-Root
+      (Apache-2.0)
+
+  * Root-My-Galaxy y Root-My-Galaxy-Payloads (cadena de exploit y sistema
+    de construcción por objetivo)
+      BuSung-dev — https://github.com/BuSung-dev/Root-My-Galaxy
+                   https://github.com/BuSung-dev/Root-My-Galaxy-Payloads
+      (Apache-2.0)
+
+  * Investigación original de CVE-2026-43499 ("GhostLock" / "IonStack")
+      Nebula Security
+
+  * KernelSU
+      tiann y colaboradores — https://github.com/tiann/KernelSU
+      (los componentes de kernel siguen bajo GPL-3.0)
+
+  * Shizuku (ejecución de comandos como el usuario shell desde la app)
+      RikkaApps — https://github.com/RikkaApps/Shizuku
+      (Apache-2.0)
+
+Cambios realizados en este repositorio respecto a la base de quillfinch:
+
+  * Port del payload a la build X520XXSBCZI2 (la base apuntaba a
+    X520XXSACZH6), con binarios recompilados y hashes publicados.
+  * El daemon de root usa un socket abstracto de Linux
+    (cve43499-superuser) en lugar de /data/local/tmp/temp_su.sock.
+  * El daemon invoca `ksud late-load --package-name me.weishu.kernelsu`
+    (SBCZI2 no acepta --ephemeral).
+  * Aplicación lanzadora Android (app-launcher/) con interfaz Material 3 y
+    ejecución de la cadena completa a través de Shizuku, sin ordenador.
+  * Documentación de instalación, validación en hardware y solución de
+    problemas.
+
+Licencia: Apache-2.0 (ver LICENSE). Los componentes de KernelSU conservan
+su licencia GPL-3.0.

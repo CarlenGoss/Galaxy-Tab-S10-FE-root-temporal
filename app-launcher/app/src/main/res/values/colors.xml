@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand palette (light). Indigo primary, teal accent. -->
+    <color name="md_primary">#4F46E5</color>
+    <color name="md_on_primary">#FFFFFF</color>
+    <color name="md_primary_container">#E2E0FF</color>
+    <color name="md_on_primary_container">#100A6B</color>
+
+    <color name="md_secondary">#5C5D72</color>
+    <color name="md_on_secondary">#FFFFFF</color>
+    <color name="md_secondary_container">#E1E0F9</color>
+    <color name="md_on_secondary_container">#191A2C</color>
+
+    <color name="md_tertiary">#00696D</color>
+    <color name="md_on_tertiary">#FFFFFF</color>
+    <color name="md_tertiary_container">#9CF1F4</color>
+    <color name="md_on_tertiary_container">#002021</color>
+
+    <color name="ic_launcher_background">#4F46E5</color>
+</resources>

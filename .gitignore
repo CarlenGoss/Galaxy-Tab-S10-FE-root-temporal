@@ -1,0 +1,23 @@
+> Archivos generados (Gradle, IDE, salida de compilación)
+.gradle/
+build/
+app-launcher/.gradle/
+app-launcher/build/
+app-launcher/local.properties
+local.properties
+*.iml
+.idea/
+.DS_Store
+captures/
+.cxx/
+
+> Registros y artefactos locales de pruebas
+*.log
+*.apk
+ui.xml
+*.png
+
+> Firma local (nunca subir)
+*.jks
+*.keystore
+keystore.properties

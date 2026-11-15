@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand palette (dark). Softer indigo, bright teal accent. -->
+    <color name="md_primary">#C0C1FF</color>
+    <color name="md_on_primary">#1E1A78</color>
+    <color name="md_primary_container">#3A36A0</color>
+    <color name="md_on_primary_container">#E2E0FF</color>
+
+    <color name="md_secondary">#C5C4DD</color>
+    <color name="md_on_secondary">#2E2F42</color>
+    <color name="md_secondary_container">#444559</color>
+    <color name="md_on_secondary_container">#E1E0F9</color>
+
+    <color name="md_tertiary">#80D5D8</color>
+    <color name="md_on_tertiary">#00363A</color>
+    <color name="md_tertiary_container">#004F52</color>
+    <color name="md_on_tertiary_container">#9CF1F4</color>
+</resources>
