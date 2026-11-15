@@ -53,6 +53,18 @@ actualizado, recompila el payload siguiendo [PORTING.md](PORTING.md).
 
 ## Instalación y uso
 
+### Descargar una release precompilada
+
+La opción recomendada para usuarios normales es descargar el APK desde la
+[página de Releases](https://github.com/CarlenGoss/Galaxy-Tab-S10-FE-root-temporal/releases).
+Cada release incluye el APK y `SHA256SUMS.txt`. El APK ya contiene el payload y
+el cargador de KernelSU para `X520XXSBCZI2`; no es necesario compilar el
+proyecto.
+
+KernelSU Manager se distribuye por separado de forma intencionada. Descárgalo
+desde las [releases oficiales de KernelSU](https://github.com/tiann/KernelSU/releases)
+para poder actualizarlo de forma independiente y mantener clara su procedencia.
+
 ### Vía A — App en la tablet (recomendada, sin ordenador)
 
 Requisitos: la tablet ya emparejada una vez con **Depuración inalámbrica**

@@ -54,6 +54,18 @@ build. If you have updated the tablet, re-port the payload using
 
 ## Installation and usage
 
+### Download a prebuilt release
+
+The recommended option for normal users is to download the APK from the
+[Releases page](https://github.com/CarlenGoss/Galaxy-Tab-S10-FE-root-temporal/releases).
+Each release includes the APK and `SHA256SUMS.txt`. The APK already bundles the
+payload and KernelSU loader for `X520XXSBCZI2`; users do not need to compile the
+project.
+
+KernelSU Manager is intentionally distributed separately. Download it from the
+[official KernelSU releases](https://github.com/tiann/KernelSU/releases) so it
+can be updated independently and its provenance remains clear.
+
 ### Option A — Launcher app on the tablet (recommended)
 
 This option does not require a computer after the initial installation.
